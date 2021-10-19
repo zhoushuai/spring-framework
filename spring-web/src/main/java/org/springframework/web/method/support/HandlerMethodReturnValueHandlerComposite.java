@@ -29,6 +29,11 @@ import org.springframework.web.context.request.NativeWebRequest;
  * {@link HandlerMethodReturnValueHandler HandlerMethodReturnValueHandlers}.
  * Previously resolved return types are cached for faster lookups.
  *
+ * 当前返回值实现类是一个组合工具类，这个类不做具体的返回值处理，它是通过委托其他返回值处理器来对返回值做具体处理。
+ *
+ * HandlerMethodReturnValueHandlerComposite 巧妙使用组合模式把多个具体实现类聚合在自己类中，自己类不做具体处理
+ * 自己只需要做和其他实现的管理和调用即可。
+ *
  * @author Rossen Stoyanchev
  * @since 3.1
  */
@@ -70,21 +75,29 @@ public class HandlerMethodReturnValueHandlerComposite implements HandlerMethodRe
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-
+		//根据返回类型和返回值获取可以处理当前返回值处理器，如果没有匹配到对应的处理直接返回null
 		HandlerMethodReturnValueHandler handler = selectHandler(returnValue, returnType);
 		if (handler == null) {
+			//如果没有找到对应的处理器，抛出无效参数的异常
 			throw new IllegalArgumentException("Unknown return value type: " + returnType.getParameterType().getName());
 		}
+		//具体处理返回值的方法
 		handler.handleReturnValue(returnValue, returnType, mavContainer, webRequest);
 	}
 
 	@Nullable
 	private HandlerMethodReturnValueHandler selectHandler(@Nullable Object value, MethodParameter returnType) {
+		//1. 首先判断当前返回值和返回值类型是否是异步处理器
 		boolean isAsyncValue = isAsyncReturnValue(value, returnType);
+
+		//2. 循环遍历所有返回值处理器
 		for (HandlerMethodReturnValueHandler handler : this.returnValueHandlers) {
+			//3. 如果是异步处理器，继续执行
 			if (isAsyncValue && !(handler instanceof AsyncHandlerMethodReturnValueHandler)) {
 				continue;
 			}
+
+			//4. 调用当前返回值处理的supportReturnType()方法，方法返回true表示可以处理当前返回类型
 			if (handler.supportsReturnType(returnType)) {
 				return handler;
 			}

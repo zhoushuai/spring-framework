@@ -250,6 +250,11 @@ public class ModelAndViewContainer {
 	}
 
 	/**
+	 * 用于表示请求是否在业务逻辑中处理完成，如果以完成spring mvc在接下来的操作中将不做视图处理操作。
+	 * {@code true} 请求在业务逻辑中已处理，无需视图处理
+	 * {@code false} 请求未处理完乃需要继续处理，接下来解决会继续处理当前请求
+	 *
+	 *
 	 * Whether the request has been handled fully within the handler, e.g.
 	 * {@code @ResponseBody} method, and therefore view resolution is not
 	 * necessary. This flag can also be set when controller methods declare an

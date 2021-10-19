@@ -112,7 +112,7 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
 	@Nullable
 	public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
-
+		// spring mvc 对参数解析做了缓存处理，每次查询数据前先尝试查询缓存
 		HandlerMethodArgumentResolver resolver = getArgumentResolver(parameter);
 		if (resolver == null) {
 			throw new IllegalArgumentException("Unsupported parameter type [" +

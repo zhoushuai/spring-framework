@@ -28,6 +28,7 @@ import org.springframework.web.bind.WebDataBinder;
  * Convenient {@link WebBindingInitializer} for declarative configuration
  * in a Spring application context. Allows for reusing pre-configured
  * initializers with multiple controller/handlers.
+ * 用于在spring 上下文声明WebBinder对象，允许多个Controller或Handler使用。
  *
  * @author Juergen Hoeller
  * @since 2.5

@@ -113,10 +113,11 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	 */
 	public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		//调用具体的Handler处理器方法，传入方法所需参数及请求信息
 		Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);
 		setResponseStatus(webRequest);
 
+		// 验证返回值是否为null，如果Handler返回空直接结束方法的调用，并设置处理的状态为以处理
 		if (returnValue == null) {
 			if (isRequestNotModified(webRequest) || getResponseStatus() != null || mavContainer.isRequestHandled()) {
 				disableContentCachingIfNecessary(webRequest);
@@ -124,14 +125,16 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 				return;
 			}
 		}
+		//判断返回值是否为字符串，如果是字符串直接返回字符串并设置处理状态为已处理
 		else if (StringUtils.hasText(getResponseStatusReason())) {
 			mavContainer.setRequestHandled(true);
 			return;
 		}
-
+		// 当返回值不是null也不是string类型的值时，设置请求是否处理完成的状态为false
 		mavContainer.setRequestHandled(false);
 		Assert.state(this.returnValueHandlers != null, "No return value handlers");
 		try {
+			//处理具体返回值方法，spring mvc把处理具体返回值业务逻辑封装在一个HandleReturnValue的方法中
 			this.returnValueHandlers.handleReturnValue(
 					returnValue, getReturnValueType(returnValue), mavContainer, webRequest);
 		}
