@@ -218,7 +218,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 			HttpServletRequest request = inputMessage.getServletRequest();
 			List<MediaType> acceptableTypes;
 			try {
-				// 首先获取请求可以接受的媒体类型
+				// 首先获取请求可以接受的媒体类型，内部会委托给内容协商管理器来解析请求客户端可以接收的媒体类型列表
 				acceptableTypes = getAcceptableMediaTypes(request);
 			}
 			catch (HttpMediaTypeNotAcceptableException ex) {
@@ -411,7 +411,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 
 	private List<MediaType> getAcceptableMediaTypes(HttpServletRequest request)
 			throws HttpMediaTypeNotAcceptableException {
-
+		//委托文件协商器获取客户端可以接收的媒体类型列表
 		return this.contentNegotiationManager.resolveMediaTypes(new ServletWebRequest(request));
 	}
 
