@@ -1039,12 +1039,13 @@ public class DispatcherServlet extends FrameworkServlet {
 			Exception dispatchException = null;
 
 			try {
-				//检查请求是否为上传请求
+				//检查请求是否为上传请求，如果请求是上传请求使用上传请求对象替换默认请求对象
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
 
 				// Determine handler for the current request.
 				// 获取可以处理当前请求的处理器
+				// 第一步：获取可以处理请求的处理器
 				mappedHandler = getHandler(processedRequest);
 				if (mappedHandler == null) {
 					//当前请求地址未匹配到对应的handle时，使用notHandleFound处理处理
@@ -1054,10 +1055,10 @@ public class DispatcherServlet extends FrameworkServlet {
 
 				// Determine handler adapter for the current request.
 				// 决定执行handler请求的适配器
+				// 第二步： 获取可以执行处理器的适配器
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
 				// Process last-modified header, if supported by the handler.
-				//
 				String method = request.getMethod();
 				boolean isGet = HttpMethod.GET.matches(method);
 				if (isGet || HttpMethod.HEAD.matches(method)) {
@@ -1067,19 +1068,23 @@ public class DispatcherServlet extends FrameworkServlet {
 					}
 				}
 
+				//执行拦截器的PreHandle方法，当返回false表示停止请求，返回true表示继续执行
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
 					return;
 				}
 
 				// Actually invoke the handler.
 				// 真实执行处理的方法
+				// 第三步： 执行具体处理器的业务逻辑
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
 				if (asyncManager.isConcurrentHandlingStarted()) {
 					return;
 				}
 
+				//设置默认处理器
 				applyDefaultViewName(processedRequest, mv);
+				//拦截器：当业务访问执行完调用postHandle方法
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			}
 			catch (Exception ex) {
@@ -1090,6 +1095,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				// making them available for @ExceptionHandler methods and other scenarios.
 				dispatchException = new NestedServletException("Handler dispatch failed", err);
 			}
+			//第四步：执行页面渲染操作
 			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
 		}
 		catch (Exception ex) {
@@ -1137,6 +1143,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		boolean errorView = false;
 
+		//判断请求过程中是否出现异常，如果异常对象不为空执行异常处理业务
 		if (exception != null) {
 			if (exception instanceof ModelAndViewDefiningException) {
 				logger.debug("ModelAndViewDefiningException encountered", exception);
@@ -1151,6 +1158,10 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Did the handler return a view to render?
 		if (mv != null && !mv.wasCleared()) {
+
+			//执行页面渲染操作，页面渲染操作中使用到了两个重要组件ViewResolver和View对象
+			//ViewResolver：负责把视图名称解析为视图对象
+			//View： 负责把模型数据渲染到视图对象中
 			render(mv, request, response);
 			if (errorView) {
 				WebUtils.clearErrorRequestAttributes(request);
