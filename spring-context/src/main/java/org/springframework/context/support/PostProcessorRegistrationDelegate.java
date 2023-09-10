@@ -45,6 +45,7 @@ import org.springframework.lang.Nullable;
 
 /**
  * Delegate for AbstractApplicationContext's post-processor handling.
+ * 用于执行后置处理器的委托类，这个类中定义了后置处理的执行逻辑。
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
@@ -75,6 +76,7 @@ final class PostProcessorRegistrationDelegate {
 		// Invoke BeanDefinitionRegistryPostProcessors first, if any.
 		Set<String> processedBeans = new HashSet<>();
 
+		// 执行BeanDefinitionRegistryPostProcessor
 		if (beanFactory instanceof BeanDefinitionRegistry) {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
@@ -86,8 +88,7 @@ final class PostProcessorRegistrationDelegate {
 							(BeanDefinitionRegistryPostProcessor) postProcessor;
 					registryProcessor.postProcessBeanDefinitionRegistry(registry);
 					registryProcessors.add(registryProcessor);
-				}
-				else {
+				} else {
 					regularPostProcessors.add(postProcessor);
 				}
 			}
@@ -146,15 +147,14 @@ final class PostProcessorRegistrationDelegate {
 			// Now, invoke the postProcessBeanFactory callback of all processors handled so far.
 			invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
 			invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
-		}
-
-		else {
+		} else {
 			// Invoke factory processors registered with the context instance.
 			invokeBeanFactoryPostProcessors(beanFactoryPostProcessors, beanFactory);
 		}
 
 		// Do not initialize FactoryBeans here: We need to leave all regular beans
 		// uninitialized to let the bean factory post-processors apply to them!
+		// 执行非BeanDefinitionRegistryPostProcessor的BeanFactoryPostProcessor对象
 		String[] postProcessorNames =
 				beanFactory.getBeanNamesForType(BeanFactoryPostProcessor.class, true, false);
 
@@ -166,14 +166,11 @@ final class PostProcessorRegistrationDelegate {
 		for (String ppName : postProcessorNames) {
 			if (processedBeans.contains(ppName)) {
 				// skip - already processed in first phase above
-			}
-			else if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+			} else if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
 				priorityOrderedPostProcessors.add(beanFactory.getBean(ppName, BeanFactoryPostProcessor.class));
-			}
-			else if (beanFactory.isTypeMatch(ppName, Ordered.class)) {
+			} else if (beanFactory.isTypeMatch(ppName, Ordered.class)) {
 				orderedPostProcessorNames.add(ppName);
-			}
-			else {
+			} else {
 				nonOrderedPostProcessorNames.add(ppName);
 			}
 		}
@@ -239,11 +236,9 @@ final class PostProcessorRegistrationDelegate {
 				if (pp instanceof MergedBeanDefinitionPostProcessor) {
 					internalPostProcessors.add(pp);
 				}
-			}
-			else if (beanFactory.isTypeMatch(ppName, Ordered.class)) {
+			} else if (beanFactory.isTypeMatch(ppName, Ordered.class)) {
 				orderedPostProcessorNames.add(ppName);
-			}
-			else {
+			} else {
 				nonOrderedPostProcessorNames.add(ppName);
 			}
 		}
@@ -301,6 +296,8 @@ final class PostProcessorRegistrationDelegate {
 
 	/**
 	 * Invoke the given BeanDefinitionRegistryPostProcessor beans.
+	 * <p>
+	 * 用于执行给定的 BeanDefinitionRegistryPostProcessor实例。
 	 */
 	private static void invokeBeanDefinitionRegistryPostProcessors(
 			Collection<? extends BeanDefinitionRegistryPostProcessor> postProcessors, BeanDefinitionRegistry registry, ApplicationStartup applicationStartup) {
@@ -315,6 +312,7 @@ final class PostProcessorRegistrationDelegate {
 
 	/**
 	 * Invoke the given BeanFactoryPostProcessor beans.
+	 * 执行给定的BeanFactoryPostProcessor 对象。
 	 */
 	private static void invokeBeanFactoryPostProcessors(
 			Collection<? extends BeanFactoryPostProcessor> postProcessors, ConfigurableListableBeanFactory beanFactory) {
@@ -336,8 +334,7 @@ final class PostProcessorRegistrationDelegate {
 		if (beanFactory instanceof AbstractBeanFactory) {
 			// Bulk addition is more efficient against our CopyOnWriteArrayList there
 			((AbstractBeanFactory) beanFactory).addBeanPostProcessors(postProcessors);
-		}
-		else {
+		} else {
 			for (BeanPostProcessor postProcessor : postProcessors) {
 				beanFactory.addBeanPostProcessor(postProcessor);
 			}
