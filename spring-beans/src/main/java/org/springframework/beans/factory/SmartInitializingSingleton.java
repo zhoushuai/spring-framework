@@ -37,13 +37,21 @@ package org.springframework.beans.factory;
  * implement {@link org.springframework.context.Lifecycle} instead which offers
  * a richer model for runtime management and allows for phased startup/shutdown.
  *
+ * <li>SmartInitializingSingleton接口只对非惰性单实例Bean触发。</li>
+ * <li>afterSingletonsInstantiated()方法是在所有非惰性单实例Bean初始化完成之后进行回调。</li>
+ * <li>SmartInitializingSingleton接口可以作为InitializingBean接口的一种替代方案。</li>
+ *
  * @author Juergen Hoeller
- * @since 4.1
  * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory#preInstantiateSingletons()
+ * @since 4.1
  */
 public interface SmartInitializingSingleton {
 
 	/**
+	 * 在单例预实例化阶段结束时立即调用，并保证已创建所有常规单例 bean。
+	 * 此方法中的 {@link ListableBeanFactorygetBeansOfType} 调用不会在引导过程中触发意外的副作用。
+	 * <b>注意：</b>这个方式只适用非懒加载的spring bean对象。
+	 * <p>
 	 * Invoked right at the end of the singleton pre-instantiation phase,
 	 * with a guarantee that all regular singleton beans have been created
 	 * already. {@link ListableBeanFactory#getBeansOfType} calls within
