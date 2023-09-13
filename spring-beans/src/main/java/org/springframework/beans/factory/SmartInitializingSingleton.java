@@ -49,6 +49,7 @@ public interface SmartInitializingSingleton {
 
 	/**
 	 * 在单例预实例化阶段结束时立即调用，并保证已创建所有常规单例 bean。
+	 *
 	 * 此方法中的 {@link ListableBeanFactorygetBeansOfType} 调用不会在引导过程中触发意外的副作用。
 	 * <b>注意：</b>这个方式只适用非懒加载的spring bean对象。
 	 * <p>

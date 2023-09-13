@@ -74,6 +74,7 @@ final class PostProcessorRegistrationDelegate {
 		// https://github.com/spring-projects/spring-framework/issues?q=PostProcessorRegistrationDelegate+is%3Aclosed+label%3A%22status%3A+declined%22
 
 		// Invoke BeanDefinitionRegistryPostProcessors first, if any.
+		// 如果有BeanDefinitionRegistryPostProcessors实例，首先调用
 		Set<String> processedBeans = new HashSet<>();
 
 		// 执行BeanDefinitionRegistryPostProcessor
